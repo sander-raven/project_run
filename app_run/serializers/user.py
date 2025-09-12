@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from ..helpers import UserTypes
+
 User = get_user_model()
 
 
@@ -20,6 +22,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_type(self, obj):
         if obj.is_staff:
-            return 'coach'
+            return UserTypes.COACH.value
         else:
-            return 'athlete'
+            return UserTypes.ATHLETE.value

@@ -5,14 +5,15 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from .helpers import get_company_details, get_user_type_query
-from .models import Run
-from .serializers import RunSerializer, UserSerializer
+from .models import AthleteInfo, Run
+from .serializers import AthleteInfoSerializer, RunSerializer, UserSerializer
 
 User = get_user_model()
 
@@ -89,3 +90,34 @@ class UserViewSet(ReadOnlyModelViewSet):
             'runs', filter=Q(runs__status=Run.Status.FINISHED)
         ))
         return qs
+
+
+class AthleteInfoView(GenericAPIView):
+    queryset = AthleteInfo.objects.all()
+    serializer_class = AthleteInfoSerializer
+    lookup_url_kwarg = 'user_id'
+
+    def get(self, request, *args, **kwargs):
+        user = get_object_or_404(User, pk=kwargs.get('user_id'))
+        athlete_info, _ = AthleteInfo.objects.get_or_create(user=user)
+        serializer = self.get_serializer(athlete_info)
+        return Response(serializer.data)
+
+    def put(self, request, *args, **kwargs):
+        user = get_object_or_404(User, pk=kwargs.get('user_id'))
+        defaults = dict()
+        goals = request.POST.get('goals')
+        if goals:
+            defaults['goals'] = goals
+        weight = request.POST.get('weight')
+        if weight:
+            weight = int(weight)
+            if not (0 < weight < 900):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            defaults['weight'] = weight
+        athlete_info, _ = AthleteInfo.objects.update_or_create(
+            user=user,
+            defaults=defaults,
+        )
+        serializer = self.get_serializer(athlete_info)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

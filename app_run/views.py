@@ -24,26 +24,37 @@ class RunViewSet(ModelViewSet):
     serializer_class = RunSerializer
 
 
+def change_run_status(
+        run_id: int,
+        current_status: Run.Status,
+        new_status: Run.Status,
+) -> Response:
+    """Change run status"""
+    run = get_object_or_404(Run, pk=run_id)
+    if run.status == current_status:
+        run.status = new_status
+        run.save()
+        return Response(status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 class StartRunView(APIView):
     def post(self, request, run_id: int):
-        run = get_object_or_404(Run, pk=run_id)
-        if run.status == Run.Status.INIT:
-            run.status = Run.Status.IN_PROGRESS
-            run.save()
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return change_run_status(
+            run_id=run_id,
+            current_status=Run.Status.INIT,
+            new_status=Run.Status.IN_PROGRESS,
+        )
 
 
 class StopRunView(APIView):
     def post(self, request, run_id: int):
-        run = get_object_or_404(Run, pk=run_id)
-        if run.status == Run.Status.IN_PROGRESS:
-            run.status = Run.Status.FINISHED
-            run.save()
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return change_run_status(
+            run_id=run_id,
+            current_status=Run.Status.IN_PROGRESS,
+            new_status=Run.Status.FINISHED,
+        )
 
 
 class UserViewSet(ReadOnlyModelViewSet):

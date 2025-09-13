@@ -30,4 +30,6 @@ class UserSerializer(serializers.ModelSerializer):
             return UserTypes.ATHLETE.value
 
     def get_runs_finished(self, obj):
+        if hasattr(obj, 'runs_finished'):
+            return obj.runs_finished
         return obj.runs.filter(status=Run.Status.FINISHED).count()

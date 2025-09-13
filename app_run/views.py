@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -83,4 +84,8 @@ class UserViewSet(ReadOnlyModelViewSet):
         qs = self.queryset
         user_type = self.request.query_params.get('type', None)
         query = get_user_type_query(user_type)
-        return qs.filter(query).exclude(is_superuser=True)
+        qs = qs.filter(query).exclude(is_superuser=True)
+        qs = qs.annotate(runs_finished=Count(
+            'runs', filter=Q(runs__status=Run.Status.FINISHED)
+        ))
+        return qs

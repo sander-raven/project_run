@@ -35,6 +35,17 @@ class StartRunView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class StopRunView(APIView):
+    def post(self, request, run_id: int):
+        run = get_object_or_404(Run, pk=run_id)
+        if run.status == Run.Status.IN_PROGRESS:
+            run.status = Run.Status.FINISHED
+            run.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 class UserViewSet(ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer

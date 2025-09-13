@@ -29,4 +29,5 @@ urlpatterns = [
     path('api/company_details/', views.company_details),
     path('', include(router.urls)),
     path('api/runs/<int:run_id>/start/', views.StartRunView.as_view()),
+    path('api/runs/<int:run_id>/stop/', views.StopRunView.as_view()),
 ]

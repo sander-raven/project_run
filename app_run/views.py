@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter
@@ -22,6 +23,8 @@ def company_details(request):
 class RunViewSet(ModelViewSet):
     queryset = Run.objects.all().select_related('athlete')
     serializer_class = RunSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('athlete', 'status')
 
 
 def change_run_status(

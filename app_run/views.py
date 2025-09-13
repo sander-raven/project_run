@@ -111,7 +111,10 @@ class AthleteInfoView(GenericAPIView):
             defaults['goals'] = goals
         weight = request.POST.get('weight')
         if weight:
-            weight = int(weight)
+            try:
+                weight = int(weight)
+            except ValueError:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             if not (0 < weight < 900):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             defaults['weight'] = weight

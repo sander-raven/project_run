@@ -4,6 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -20,12 +21,17 @@ def company_details(request):
     return Response(get_company_details())
 
 
+class RunPagination(PageNumberPagination):
+    page_size_query_param = 'size'
+
+
 class RunViewSet(ModelViewSet):
     queryset = Run.objects.all().select_related('athlete')
     serializer_class = RunSerializer
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_fields = ('athlete', 'status')
     ordering_fields = ('created_at',)
+    pagination_class = RunPagination
 
 
 def change_run_status(

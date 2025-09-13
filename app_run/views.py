@@ -70,8 +70,9 @@ class StopRunView(APIView):
 class UserViewSet(ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    filter_backends = (SearchFilter,)
+    filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('first_name', 'last_name')
+    ordering_fields = ('date_joined',)
 
     def get_queryset(self):
         qs = self.queryset

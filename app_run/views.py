@@ -1,7 +1,10 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from .helpers import get_company_details, get_user_type_query
@@ -19,6 +22,17 @@ def company_details(request):
 class RunViewSet(ModelViewSet):
     queryset = Run.objects.all().select_related('athlete')
     serializer_class = RunSerializer
+
+
+class StartRunView(APIView):
+    def post(self, request, run_id: int):
+        run = get_object_or_404(Run, pk=run_id)
+        if run.status == Run.Status.INIT:
+            run.status = Run.Status.IN_PROGRESS
+            run.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(ReadOnlyModelViewSet):

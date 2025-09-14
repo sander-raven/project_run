@@ -45,6 +45,7 @@ class StopRunView(APIView):
         run = get_object_or_404(Run, pk=run_id)
         result = run.change_status(new_status=Run.Status.FINISHED)
         if result:
+            run.refresh_from_db()
             athlete_finished_run_count = Run.objects.filter(
                 athlete_id=run.athlete_id,
                 status=Run.Status.FINISHED,
@@ -54,6 +55,7 @@ class StopRunView(APIView):
                     full_name='Сделай 10 Забегов!',
                     athlete_id=run.athlete_id,
                 )
+            run.calculate_distance()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)

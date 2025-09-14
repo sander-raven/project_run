@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from geopy.distance import geodesic
 
 
 class Run(models.Model):
@@ -22,6 +23,7 @@ class Run(models.Model):
         choices=Status.choices,
         default=Status.INIT,
     )
+    distance = models.FloatField(blank=True, null=True)
 
     class Meta:
         ordering = ('-created_at',)
@@ -41,3 +43,17 @@ class Run(models.Model):
             self.save()
             return True
         return False
+
+    def calculate_distance(self):
+        """Calculate run distance"""
+        if self.status != self.Status.FINISHED:
+            return
+        distance = 0.0
+        prev_point = None
+        for position in self.positions.all():
+            point = (position.latitude, position.longitude)
+            if prev_point:
+                distance += geodesic(prev_point, point).km
+            prev_point = point
+        self.distance = distance
+        self.save()

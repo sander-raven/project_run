@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from app_run.models import Run
+from app_run.models import Challenge, Run
 from app_run.serializers import RunSerializer
 
 __all__ = [
@@ -30,34 +30,30 @@ class RunViewSet(ModelViewSet):
     pagination_class = RunPagination
 
 
-def change_run_status(
-        run_id: int,
-        current_status: Run.Status,
-        new_status: Run.Status,
-) -> Response:
-    """Change run status"""
-    run = get_object_or_404(Run, pk=run_id)
-    if run.status == current_status:
-        run.status = new_status
-        run.save()
-        return Response(status=status.HTTP_200_OK)
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
 class StartRunView(APIView):
     def post(self, request, run_id: int):
-        return change_run_status(
-            run_id=run_id,
-            current_status=Run.Status.INIT,
-            new_status=Run.Status.IN_PROGRESS,
-        )
+        run = get_object_or_404(Run, pk=run_id)
+        result = run.change_status(new_status=Run.Status.IN_PROGRESS)
+        if result:
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class StopRunView(APIView):
     def post(self, request, run_id: int):
-        return change_run_status(
-            run_id=run_id,
-            current_status=Run.Status.IN_PROGRESS,
-            new_status=Run.Status.FINISHED,
-        )
+        run = get_object_or_404(Run, pk=run_id)
+        result = run.change_status(new_status=Run.Status.FINISHED)
+        if result:
+            athlete_finished_run_count = Run.objects.filter(
+                athlete_id=run.athlete_id,
+                status=Run.Status.FINISHED,
+            ).count()
+            if athlete_finished_run_count == 3:
+                Challenge.objects.create(
+                    full_name='Сделай 10 Забегов!',
+                    athlete_id=run.athlete_id,
+                )
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)

@@ -49,7 +49,7 @@ class StopRunView(APIView):
                 athlete_id=run.athlete_id,
                 status=Run.Status.FINISHED,
             ).count()
-            if athlete_finished_run_count == 3:
+            if athlete_finished_run_count == 10:
                 Challenge.objects.create(
                     full_name='Сделай 10 Забегов!',
                     athlete_id=run.athlete_id,

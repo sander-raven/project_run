@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
+from rest_framework import mixins
 from rest_framework import status
 from rest_framework.generics import GenericAPIView, get_object_or_404
-from rest_framework.response import Response
 
 from app_run.models import AthleteInfo
 from app_run.serializers import AthleteInfoSerializer
@@ -13,35 +13,27 @@ __all__ = [
 User = get_user_model()
 
 
-class AthleteInfoView(GenericAPIView):
+class AthleteInfoView(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    GenericAPIView
+):
     queryset = AthleteInfo.objects.all()
     serializer_class = AthleteInfoSerializer
-    lookup_url_kwarg = 'user_id'
+    lookup_field = 'user_id'
+
+    @staticmethod
+    def _check_object(user_id: int):
+        user = get_object_or_404(User, id=user_id)
+        AthleteInfo.objects.get_or_create(user=user)
 
     def get(self, request, *args, **kwargs):
-        user = get_object_or_404(User, pk=kwargs.get('user_id'))
-        athlete_info, _ = AthleteInfo.objects.get_or_create(user=user)
-        serializer = self.get_serializer(athlete_info)
-        return Response(serializer.data)
+        self._check_object(kwargs.get('user_id'))
+        return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
-        user = get_object_or_404(User, pk=kwargs.get('user_id'))
-        defaults = dict()
-        goals = request.POST.get('goals')
-        if goals:
-            defaults['goals'] = goals
-        weight = request.POST.get('weight')
-        if weight:
-            try:
-                weight = int(weight)
-            except ValueError:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            if not (0 < weight < 900):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            defaults['weight'] = weight
-        athlete_info, _ = AthleteInfo.objects.update_or_create(
-            user=user,
-            defaults=defaults,
-        )
-        serializer = self.get_serializer(athlete_info)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        self._check_object(kwargs.get('user_id'))
+        response = self.update(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            response.status_code = status.HTTP_201_CREATED
+        return response

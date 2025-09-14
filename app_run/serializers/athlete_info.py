@@ -12,3 +12,9 @@ class AthleteInfoSerializer(serializers.ModelSerializer):
             'weight',
             'user_id',
         )
+
+    def validate_weight(self, value):
+        if not (0 < value < 900):
+            raise serializers.ValidationError(
+                'The weight must be in the range of 1 to 899 inclusive.'
+            )

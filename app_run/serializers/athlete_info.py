@@ -18,3 +18,4 @@ class AthleteInfoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'The weight must be in the range of 1 to 899 inclusive.'
             )
+        return value

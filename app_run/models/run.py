@@ -25,3 +25,19 @@ class Run(models.Model):
 
     class Meta:
         ordering = ('-created_at',)
+
+    def change_status(
+            self,
+            new_status: Status,
+    ) -> bool:
+        """Change run status"""
+        if (
+                (new_status == self.Status.IN_PROGRESS
+                and self.status == self.Status.INIT)
+                or (new_status == self.Status.FINISHED
+                and self.status == self.Status.IN_PROGRESS)
+        ):
+            self.status = new_status
+            self.save()
+            return True
+        return False

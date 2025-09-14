@@ -1,3 +1,4 @@
+from django.db.models import Count, Sum
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
@@ -45,17 +46,24 @@ class StopRunView(APIView):
         run = get_object_or_404(Run, pk=run_id)
         result = run.change_status(new_status=Run.Status.FINISHED)
         if result:
-            run.refresh_from_db()
-            athlete_finished_run_count = Run.objects.filter(
+            run.calculate_distance()
+            athlete_finished_runs_stats = Run.objects.filter(
                 athlete_id=run.athlete_id,
                 status=Run.Status.FINISHED,
-            ).count()
-            if athlete_finished_run_count == 10:
+            ).aggregate(
+                count=Count('id'),
+                total_distance=Sum('distance'),
+            )
+            if athlete_finished_runs_stats['count'] == 10:
                 Challenge.objects.create(
                     full_name='Сделай 10 Забегов!',
                     athlete_id=run.athlete_id,
                 )
-            run.calculate_distance()
+            if athlete_finished_runs_stats['total_distance'] >= 50.0:
+                Challenge.objects.create(
+                    full_name='Пробеги 50 километров!',
+                    athlete_id=run.athlete_id,
+                )
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)

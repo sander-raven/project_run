@@ -19,17 +19,11 @@ def upload_collectible_items(request):
     headers[url_index] = 'picture'
     error_data = []
 
-    for _index, row in enumerate(
-            sheet.iter_rows(min_row=2, values_only=True),
-            start=1
-    ):
+    for row in sheet.iter_rows(min_row=2, values_only=True):
         row_data = dict(zip(headers, row))
         serializer = CollectibleItemSerializer(data=row_data)
         if serializer.is_valid():
             serializer.save()
         else:
-            row_error_data = []
-            for error in serializer.errors:
-                row_error_data.append(row_data[error])
-            error_data.append(row_error_data)
+            error_data.append(list(row))
     return Response(data=error_data)

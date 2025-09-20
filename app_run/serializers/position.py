@@ -4,9 +4,11 @@ from ..models import Position, Run
 
 
 class PositionSerializer(serializers.ModelSerializer):
+    date_time = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S.%f')
+
     class Meta:
         model = Position
-        fields = '__all__'
+        fields = ('run', 'latitude', 'longitude', 'date_time')
 
     def validate_run(self, run):
         if run.status != Run.Status.IN_PROGRESS:

@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from ..helpers import UserTypes
 from ..models import Run
+from .collectible_item import CollectibleItemSerializer
 
 User = get_user_model()
 
@@ -33,3 +34,11 @@ class UserSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'runs_finished'):
             return obj.runs_finished
         return obj.runs.filter(status=Run.Status.FINISHED).count()
+
+
+class UserWithItemsSerializer(UserSerializer):
+    items = CollectibleItemSerializer(many=True, read_only=True)
+
+    class Meta(UserSerializer.Meta):
+        model = User
+        fields = UserSerializer.Meta.fields + ('items',)

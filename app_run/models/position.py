@@ -9,3 +9,7 @@ class Position(models.Model):
     )
     latitude = models.FloatField()
     longitude = models.FloatField()
+    date_time = models.DateTimeField(
+        null=True,
+        blank=True,
+    )

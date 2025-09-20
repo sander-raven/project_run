@@ -45,8 +45,8 @@ class Run(models.Model):
             return True
         return False
 
-    def calculate_distance(self):
-        """Calculate run distance"""
+    def calculate_distance_and_time(self):
+        """Calculate run distance and time"""
         if self.status != self.Status.FINISHED:
             return
         distance = 0.0
@@ -57,4 +57,7 @@ class Run(models.Model):
                 distance += geodesic(prev_point, point).km
             prev_point = point
         self.distance = distance
+        self.run_time_seconds = self.positions.all().aggregate(
+            run_time_seconds=models.Max('date_time') - models.Min('date_time')
+        )['run_time_seconds'].total_seconds()
         self.save()

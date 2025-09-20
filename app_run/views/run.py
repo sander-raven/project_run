@@ -46,7 +46,7 @@ class StopRunView(APIView):
         run = get_object_or_404(Run, pk=run_id)
         result = run.change_status(new_status=Run.Status.FINISHED)
         if result:
-            run.calculate_distance()
+            run.calculate_distance_and_time()
             athlete_finished_runs_stats = Run.objects.filter(
                 athlete_id=run.athlete_id,
                 status=Run.Status.FINISHED,

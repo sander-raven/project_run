@@ -33,4 +33,5 @@ urlpatterns = [
     path('api/runs/<int:run_id>/stop/', views.StopRunView.as_view()),
     path('api/athlete_info/<int:user_id>/', views.AthleteInfoView.as_view()),
     path('api/challenges/', views.ChallengeListView.as_view()),
+    path('api/collectible_item/', views.CollectibleItemListView.as_view()),
 ]

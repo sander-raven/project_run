@@ -24,6 +24,7 @@ class Run(models.Model):
         default=Status.INIT,
     )
     distance = models.FloatField(blank=True, null=True)
+    run_time_seconds = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
         ordering = ('-created_at',)

@@ -25,6 +25,11 @@ class Run(models.Model):
     )
     distance = models.FloatField(blank=True, null=True)
     run_time_seconds = models.PositiveIntegerField(blank=True, null=True)
+    speed = models.FloatField(
+        null=True,
+        blank=True,
+        help_text='Average speed. In meters per second.',
+    )
 
     class Meta:
         ordering = ('-created_at',)

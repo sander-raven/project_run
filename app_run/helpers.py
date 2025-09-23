@@ -68,10 +68,10 @@ def assign_nearby_items_to_user(
 
 def calculate_position_distance_and_speed(
         position: Position,
-) -> tuple[float | None, float | None]:
+) -> tuple[float, float]:
     """Calculate position distance and speed"""
-    distance = None
-    speed = None
+    distance = 0.0
+    speed = 0.0
     current_point = (position.latitude, position.longitude)
     prev_position = position.run.positions.last()
     if prev_position:

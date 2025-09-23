@@ -64,6 +64,11 @@ class StopRunView(APIView):
                     full_name='Пробеги 50 километров!',
                     athlete_id=run.athlete_id,
                 )
+            if run.distance >= 2 and run.run_time_seconds <= 600:
+                Challenge.objects.create(
+                    full_name='2 километра за 10 минут!',
+                    athlete_id=run.athlete_id,
+                )
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)

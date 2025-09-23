@@ -50,8 +50,8 @@ class Run(models.Model):
             return True
         return False
 
-    def calculate_distance_and_time(self):
-        """Calculate run distance and time"""
+    def calculate_run_values(self):
+        """Calculate run distance, time and average speed"""
         if self.status != self.Status.FINISHED:
             return
         distance = 0.0
@@ -62,10 +62,13 @@ class Run(models.Model):
                 distance += geodesic(prev_point, point).km
             prev_point = point
         self.distance = distance
-        run_time_seconds = self.positions.all().aggregate(
-            run_time_seconds=models.Max('date_time') - models.Min('date_time')
-        )['run_time_seconds']
+        values = self.positions.all().aggregate(
+            run_time_seconds=models.Max('date_time') - models.Min('date_time'),
+            avg_speed=models.Avg('speed'),
+        )
+        run_time_seconds = values['run_time_seconds']
         if run_time_seconds is not None:
             run_time_seconds = run_time_seconds.total_seconds()
         self.run_time_seconds = run_time_seconds
+        self.speed = values['avg_speed']
         self.save()

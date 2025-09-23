@@ -64,3 +64,21 @@ def assign_nearby_items_to_user(
         item_position = (item.latitude, item.longitude)
         if geodesic(user_position, item_position).meters < radius:
             user.items.add(item)
+
+
+def calculate_position_distance_and_speed(
+        position: Position,
+) -> tuple[float | None, float | None]:
+    """Calculate position distance and speed"""
+    distance = None
+    speed = None
+    current_point = (position.latitude, position.longitude)
+    prev_position = position.run.positions.last()
+    if prev_position:
+        prev_point = (prev_position.latitude, prev_position.longitude)
+        _distance = geodesic(current_point, prev_point)
+        distance = round(prev_position.distance + _distance.kilometers, 2)
+        if position.date_time is not None and prev_position.date_time is not None:
+            _time = (position.date_time - prev_position.date_time).total_seconds()
+            speed = round(_distance.meters / _time, 2)
+    return distance, speed

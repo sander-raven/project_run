@@ -77,7 +77,8 @@ def calculate_position_distance_and_speed(
     if prev_position:
         prev_point = (prev_position.latitude, prev_position.longitude)
         _distance = geodesic(current_point, prev_point)
-        distance = round(prev_position.distance + _distance.kilometers, 2)
+        prev_distance = prev_position.distance or 0.0
+        distance = round(prev_distance + _distance.kilometers, 2)
         if position.date_time is not None and prev_position.date_time is not None:
             _time = (position.date_time - prev_position.date_time).total_seconds()
             speed = round(_distance.meters / _time, 2)

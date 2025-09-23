@@ -16,8 +16,13 @@ class Position(models.Model):
     speed = models.FloatField(
         null=True,
         blank=True,
+        help_text=(
+            'Speed relative to the previous position, '
+            'based on time and distance traveled. In meters per second.'
+        ),
     )
     distance = models.FloatField(
         null=True,
         blank=True,
+        help_text='Accumulative total of distances traveled. In kilometers.',
     )

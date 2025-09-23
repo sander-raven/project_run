@@ -13,3 +13,11 @@ class Position(models.Model):
         null=True,
         blank=True,
     )
+    speed = models.FloatField(
+        null=True,
+        blank=True,
+    )
+    distance = models.FloatField(
+        null=True,
+        blank=True,
+    )

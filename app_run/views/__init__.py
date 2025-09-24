@@ -4,5 +4,6 @@ from .collectible_item import *
 from .company import *
 from .position import *
 from .run import *
+from .subscribe import *
 from .upload_collectible_items import *
 from .user import *

@@ -42,3 +42,31 @@ class UserWithItemsSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = User
         fields = UserSerializer.Meta.fields + ('items',)
+
+
+class UserAthleteSerializer(UserWithItemsSerializer):
+    coach = serializers.SerializerMethodField()
+
+    class Meta(UserWithItemsSerializer.Meta):
+        model = User
+        fields = UserWithItemsSerializer.Meta.fields + ('coach',)
+
+    def get_coach(self, obj):
+        coach_ids = obj.subscriptions_to.all().values_list(
+            'coach_id', flat=True
+        )
+        if len(coach_ids) > 0:
+            return coach_ids[0]
+
+
+class UserCoachSerializer(UserWithItemsSerializer):
+    athletes = serializers.SerializerMethodField()
+
+    class Meta(UserWithItemsSerializer.Meta):
+        model = User
+        fields = UserWithItemsSerializer.Meta.fields + ('athletes',)
+
+    def get_athletes(self, obj):
+        return obj.subscriptions_from.all().values_list(
+            'athlete_id', flat=True
+        )

@@ -6,7 +6,11 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from app_run.helpers import get_user_type_query
 from app_run.models import Run
-from app_run.serializers import UserSerializer, UserWithItemsSerializer
+from app_run.serializers import (
+    UserSerializer,
+    UserAthleteSerializer,
+    UserCoachSerializer,
+)
 
 __all__ = [
     'UserViewSet',
@@ -41,5 +45,9 @@ class UserViewSet(ReadOnlyModelViewSet):
         if self.action == 'list':
             return UserSerializer
         elif self.action == 'retrieve':
-            return UserWithItemsSerializer
+            obj = self.get_object()
+            if obj.is_staff:
+                return UserCoachSerializer
+            else:
+                return UserAthleteSerializer
         return super().get_serializer_class()

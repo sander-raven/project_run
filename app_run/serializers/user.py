@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Avg
 from rest_framework import serializers
 
 from ..helpers import UserTypes
@@ -11,6 +12,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     runs_finished = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -22,6 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'type',
             'runs_finished',
+            'rating',
         )
 
     def get_type(self, obj):
@@ -35,6 +38,10 @@ class UserSerializer(serializers.ModelSerializer):
             return obj.runs_finished
         return obj.runs.filter(status=Run.Status.FINISHED).count()
 
+    def get_rating(self, obj):
+        if hasattr(obj, 'rating'):
+            return obj.rating
+        return obj.subscriptions_from.annotate(avg_rating=Avg('rating'))['avg_rating']
 
 class UserWithItemsSerializer(UserSerializer):
     items = CollectibleItemSerializer(many=True, read_only=True)

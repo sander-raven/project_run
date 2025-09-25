@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Avg
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -36,9 +36,12 @@ class UserViewSet(ReadOnlyModelViewSet):
         user_type = self.request.query_params.get('type', None)
         query = get_user_type_query(user_type)
         qs = qs.filter(query).exclude(is_superuser=True)
-        qs = qs.annotate(runs_finished=Count(
+        qs = qs.annotate(
+            runs_finished=Count(
             'runs', filter=Q(runs__status=Run.Status.FINISHED)
-        ))
+            ),
+            rating=Avg('subscriptions_from__rating'),
+        )
         return qs
 
     def get_serializer_class(self):

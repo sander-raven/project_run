@@ -56,7 +56,10 @@ def rate_coach(request, coach_id: int) -> Response:
     if athlete is None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    subscribe = get_object_or_404(Subscribe, coach=coach, athlete=athlete)
+    try:
+        subscribe = Subscribe.objects.get(coach=coach, athlete=athlete)
+    except Subscribe.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     serializer = SubscribeSerializer(
         subscribe, data={'rating': request.data.get('rating')}, partial=True
     )

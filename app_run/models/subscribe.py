@@ -14,6 +14,10 @@ class Subscribe(models.Model):
         on_delete=models.CASCADE,
         related_name='subscriptions_to',
     )
+    rating = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         unique_together = ('coach', 'athlete')

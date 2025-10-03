@@ -38,6 +38,9 @@ def assign_nearby_items_to_user(
         radius: float = 100,
 ):
     """Assign nearby collectible items to user"""
+    # Чтобы не проверять заведомо неподходящие объекты,
+    # отфильтруем только те, которые лежат в заданном радиусе
+    # (немного его расширив на всякий случай)
     radius *= 1.1
     user = position.run.athlete
     user_latitude = position.latitude
